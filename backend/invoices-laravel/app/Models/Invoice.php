@@ -33,19 +33,19 @@ class Invoice extends Model
         'tax_rate' => 'decimal:2',
     ];
 
-    // Relación: Una factura pertenece a un cliente
+    // Relationship: An invoice belongs to a customer
     public function customer()
     {
         return $this->belongsTo(Customer::class);
     }
 
-    // Relación: Una factura tiene muchos items
+    // Relationship: An invoice has many items
     public function items()
     {
         return $this->hasMany(InvoiceItem::class);
     }
 
-    // Calcular totales automáticamente
+    // Calculate totals automatically
     public function calculateTotals()
     {
         $this->subtotal = $this->items()->sum('line_total');
