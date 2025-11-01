@@ -13,7 +13,16 @@ return new class extends Migration
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->string('phone')->nullable();
+            $table->string('tax_id')->unique(); // RIF, NIC, etc
+            $table->text('address')->nullable();
+            $table->string('city')->nullable();
+            $table->string('country')->default('VE');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
