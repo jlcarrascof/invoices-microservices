@@ -4,35 +4,29 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreInvoiceRequest;
+use App\Http\Requests\UpdateInvoiceRequest;
 use Illuminate\Http\JsonResponse;
 
 class InvoiceController extends Controller
 {
-    // List all invoices
+    // List all invoices with customer and items
     public function index(): JsonResponse
     {
-        return response()->json(Invoice::with(['customer', 'items'])->get());
+        return response()->json([
+            'status' => 'success',
+            'data' => Invoice::with(['customer', 'items'])->get(),
+            'count' => Invoice::count(),
+        ]);
     }
 
-    // Create an invoice
-    public function store(Request $request): JsonResponse
+    // Create an invoice with validated data and items
+    public function store(StoreInvoiceRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'invoice_number' => 'required|string|unique:invoices,invoice_number',
-            'issue_date' => 'required|date',
-            'due_date' => 'nullable|date',
-            'tax_rate' => 'numeric|min:0',
-            'currency' => 'required|string|max:6',
-            'status' => 'nullable|in:draft,sent,paid,cancelled',
-            'notes' => 'nullable|string'
-        ]);
+        $invoice = Invoice::create($request->validated());
 
-        $invoice = Invoice::create($validated);
-
-        // Process items if they come in the request
-        if($request->has('items') && is_array($request->items)) {
+        // Process items if provided
+        if ($request->has('items') && is_array($request->items)) {
             foreach ($request->items as $item) {
                 $invoiceItem = new InvoiceItem([
                     'description' => $item['description'],
@@ -44,36 +38,34 @@ class InvoiceController extends Controller
             }
         }
 
-        // Recalculate totals
+        // Calculate totals
         $invoice->calculateTotals()->save();
 
-        return response()->json($invoice->load(['customer', 'items']), 201);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice created successfully',
+            'data' => $invoice->load(['customer', 'items']),
+        ], 201);
     }
 
-    // Show an invoice by ID
+    // Show a specific invoice by ID
     public function show($id): JsonResponse
     {
         $invoice = Invoice::with(['customer', 'items'])->findOrFail($id);
-        return response()->json($invoice);
+        return response()->json([
+            'status' => 'success',
+            'data' => $invoice,
+        ]);
     }
 
-    // Update an invoice
-    public function update(Request $request, $id): JsonResponse
+    // Update an invoice with validated data
+    public function update(UpdateInvoiceRequest $request, $id): JsonResponse
     {
         $invoice = Invoice::with(['items'])->findOrFail($id);
-        $validated = $request->validate([
-            'invoice_number' => "required|string|unique:invoices,invoice_number,{$id}",
-            'issue_date' => 'required|date',
-            'due_date' => 'nullable|date',
-            'tax_rate' => 'numeric|min:0',
-            'currency' => 'required|string|max:6',
-            'status' => 'nullable|in:draft,sent,paid,cancelled',
-            'notes' => 'nullable|string'
-        ]);
-        $invoice->update($validated);
+        $invoice->update($request->validated());
 
-        // Update items if they come in the request
-        if($request->has('items') && is_array($request->items)) {
+        // Update items if provided
+        if ($request->has('items') && is_array($request->items)) {
             $invoice->items()->delete(); // Delete old items
             foreach ($request->items as $item) {
                 $invoiceItem = new InvoiceItem([
@@ -89,7 +81,11 @@ class InvoiceController extends Controller
         // Recalculate totals
         $invoice->calculateTotals()->save();
 
-        return response()->json($invoice->load(['customer', 'items']));
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice updated successfully',
+            'data' => $invoice->load(['customer', 'items']),
+        ]);
     }
 
     // Delete an invoice (soft delete)
@@ -97,6 +93,9 @@ class InvoiceController extends Controller
     {
         $invoice = Invoice::findOrFail($id);
         $invoice->delete();
-        return response()->json(['message' => 'Invoice deleted']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Invoice deleted successfully',
+        ]);
     }
 }
