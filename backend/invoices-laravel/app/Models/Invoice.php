@@ -53,4 +53,57 @@ class Invoice extends Model
         $this->total_amount = $this->subtotal + $this->tax_amount;
         return $this;
     }
+
+    /**
+     * Mark the invoice as paid.
+     *
+     * @return bool
+     */
+    public function markAsPaid(): bool
+    {
+        if ($this->status === 'paid') {
+            throw new \Exception('This invoice is already marked as paid');
+        }
+
+        if ($this->status === 'cancelled') {
+            throw new \Exception('Cannot mark a cancelled invoice as paid');
+        }
+
+        return $this->update(['status' => 'paid']);
+    }
+
+    /**
+     * Cancel the invoice (anulate, not delete).
+     *
+     * @return bool
+     */
+    public function cancel(): bool
+    {
+        if (!in_array($this->status, ['draft', 'sent'])) {
+            throw new \Exception('Only invoices in draft or sent status can be cancelled');
+        }
+
+        return $this->update(['status' => 'cancelled']);
+    }
+
+    /**
+     * Check if invoice can be edited.
+     *
+     * @return bool
+     */
+    public function canBeEdited(): bool
+    {
+        return in_array($this->status, ['draft']);
+    }
+
+    /**
+     * Check if invoice can be cancelled.
+     *
+     * @return bool
+     */
+    public function canBeCancelled(): bool
+    {
+        return in_array($this->status, ['draft', 'sent']);
+    }
 }
+
