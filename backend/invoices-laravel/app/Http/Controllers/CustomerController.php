@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreCustomerRequest;
+use App\Http\Requests\UpdateCustomerRequest;
 use Illuminate\Http\JsonResponse;
 
 class CustomerController extends Controller
@@ -11,41 +12,44 @@ class CustomerController extends Controller
     // List all customers
     public function index(): JsonResponse
     {
-        return response()->json(Customer::all());
+        return response()->json([
+            'status' => 'success',
+            'data' => Customer::all(),
+            'count' => Customer::count(),
+        ]);
     }
 
-    // Create a customer
-    public function store(Request $request): JsonResponse
+    // Create a customer with validated data
+    public function store(StoreCustomerRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:120',
-            'email' => 'required|email|unique:customers,email',
-            'phone' => 'nullable|string|max:30',
-            'tax_id' => 'required|string|unique:customers,tax_id',
-        ]);
-        $customer = Customer::create($validated);
-        return response()->json($customer, 201);
+        $customer = Customer::create($request->validated());
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Customer created successfully',
+            'data' => $customer,
+        ], 201);
     }
 
     // Show a specific customer by ID
     public function show($id): JsonResponse
     {
         $customer = Customer::findOrFail($id);
-        return response()->json($customer);
+        return response()->json([
+            'status' => 'success',
+            'data' => $customer,
+        ]);
     }
 
-    // Update a customer
-    public function update(Request $request, $id): JsonResponse
+    // Update a customer with validated data
+    public function update(UpdateCustomerRequest $request, $id): JsonResponse
     {
         $customer = Customer::findOrFail($id);
-        $validated = $request->validate([
-            'name' => 'required|string|max:120',
-            'email' => "required|email|unique:customers,email,{$id}",
-            'phone' => 'nullable|string|max:30',
-            'tax_id' => "required|string|unique:customers,tax_id,{$id}",
+        $customer->update($request->validated());
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Customer updated successfully',
+            'data' => $customer,
         ]);
-        $customer->update($validated);
-        return response()->json($customer);
     }
 
     // Delete a customer (soft delete)
@@ -53,6 +57,9 @@ class CustomerController extends Controller
     {
         $customer = Customer::findOrFail($id);
         $customer->delete();
-        return response()->json(['message' => 'Customer deleted']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Customer deleted successfully',
+        ]);
     }
 }
