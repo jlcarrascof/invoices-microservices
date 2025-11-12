@@ -2,47 +2,57 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
 class CustomerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // List all customers
+    public function index(): JsonResponse
     {
-        //
+        return response()->json(Customer::all());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    // Create a customer
+    public function store(Request $request): JsonResponse
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:120',
+            'email' => 'required|email|unique:customers,email',
+            'phone' => 'nullable|string|max:30',
+            'tax_id' => 'required|string|unique:customers,tax_id',
+        ]);
+        $customer = Customer::create($validated);
+        return response()->json($customer, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Show a specific customer by ID
+    public function show($id): JsonResponse
     {
-        //
+        $customer = Customer::findOrFail($id);
+        return response()->json($customer);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    // Update a customer
+    public function update(Request $request, $id): JsonResponse
     {
-        //
+        $customer = Customer::findOrFail($id);
+        $validated = $request->validate([
+            'name' => 'required|string|max:120',
+            'email' => "required|email|unique:customers,email,{$id}",
+            'phone' => 'nullable|string|max:30',
+            'tax_id' => "required|string|unique:customers,tax_id,{$id}",
+        ]);
+        $customer->update($validated);
+        return response()->json($customer);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    // Delete a customer (soft delete)
+    public function destroy($id): JsonResponse
     {
-        //
+        $customer = Customer::findOrFail($id);
+        $customer->delete();
+        return response()->json(['message' => 'Customer deleted']);
     }
 }
