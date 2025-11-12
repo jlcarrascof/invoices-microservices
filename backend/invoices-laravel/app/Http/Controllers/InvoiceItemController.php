@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreInvoiceItemRequest;
+use App\Http\Requests\UpdateInvoiceItemRequest;
 use Illuminate\Http\JsonResponse;
 
 class InvoiceItemController extends Controller
@@ -13,20 +14,19 @@ class InvoiceItemController extends Controller
     public function index($invoiceId): JsonResponse
     {
         $invoice = Invoice::findOrFail($invoiceId);
-        return response()->json($invoice->items);
+        return response()->json([
+            'status' => 'success',
+            'data' => $invoice->items,
+            'count' => $invoice->items->count(),
+        ]);
     }
 
     // Create a new item for a specific invoice
-    public function store(Request $request, $invoiceId): JsonResponse
+    public function store(StoreInvoiceItemRequest $request, $invoiceId): JsonResponse
     {
         $invoice = Invoice::findOrFail($invoiceId);
 
-        $validated = $request->validate([
-            'description' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:1',
-            'unit_price' => 'required|numeric|min:0',
-        ]);
-
+        $validated = $request->validated();
         $validated['line_total'] = $validated['quantity'] * $validated['unit_price'];
 
         $item = $invoice->items()->create($validated);
@@ -34,7 +34,11 @@ class InvoiceItemController extends Controller
         // Recalculate invoice totals
         $invoice->calculateTotals()->save();
 
-        return response()->json($item, 201);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Item added to the invoice successfully',
+            'data' => $item,
+        ], 201);
     }
 
     // Show a specific item
@@ -42,21 +46,19 @@ class InvoiceItemController extends Controller
     {
         $invoice = Invoice::findOrFail($invoiceId);
         $item = $invoice->items()->findOrFail($itemId);
-        return response()->json($item);
+        return response()->json([
+            'status' => 'success',
+            'data' => $item,
+        ]);
     }
 
     // Update a specific item
-    public function update(Request $request, $invoiceId, $itemId): JsonResponse
+    public function update(UpdateInvoiceItemRequest $request, $invoiceId, $itemId): JsonResponse
     {
         $invoice = Invoice::findOrFail($invoiceId);
         $item = $invoice->items()->findOrFail($itemId);
 
-        $validated = $request->validate([
-            'description' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:1',
-            'unit_price' => 'required|numeric|min:0',
-        ]);
-
+        $validated = $request->validated();
         $validated['line_total'] = $validated['quantity'] * $validated['unit_price'];
 
         $item->update($validated);
@@ -64,7 +66,11 @@ class InvoiceItemController extends Controller
         // Recalculate invoice totals
         $invoice->calculateTotals()->save();
 
-        return response()->json($item);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Item updated successfully',
+            'data' => $item,
+        ]);
     }
 
     // Delete a specific item
@@ -78,6 +84,9 @@ class InvoiceItemController extends Controller
         // Recalculate invoice totals after deleting item
         $invoice->calculateTotals()->save();
 
-        return response()->json(['message' => 'Item deleted successfully']);
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Item deleted from the invoice successfully',
+        ]);
     }
 }
