@@ -106,4 +106,3 @@ class Invoice extends Model
         return in_array($this->status, ['draft', 'sent']);
     }
 }
-
