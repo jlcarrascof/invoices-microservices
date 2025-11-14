@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreCustomerRequest extends FormRequest
 {
@@ -22,9 +23,9 @@ class StoreCustomerRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:120|min:3',
-            'email' => 'required|email|unique:customers,email',
+            'email' => ['required', 'email', Rule::unique('customers', 'email')->whereNull('deleted_at')],
             'phone' => 'nullable|string|max:30',
-            'tax_id' => 'required|string|unique:customers,tax_id|regex:/^[A-Z0-9\-]{5,20}$/', // RUT, NIT format
+            'tax_id' => ['required', 'string', Rule::unique('customers', 'tax_id')->whereNull('deleted_at'), 'regex:/^[A-Z0-9\-]{5,20}$/'],
             'address' => 'nullable|string|max:255',
             'city' => 'nullable|string|max:100',
             'country' => 'required|string|max:2',

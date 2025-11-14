@@ -226,3 +226,23 @@
 #52 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php(23): require_once('...')
 #53 {main}
 "} 
+[2025-11-14 02:36:31] local.ERROR: There are no commands defined in the "log" namespace. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"log\" namespace. at /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/symfony/console/Application.php:674)
+[stacktrace]
+#0 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/symfony/console/Application.php(723): Symfony\\Component\\Console\\Application->findNamespace()
+#1 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/symfony/console/Application.php(298): Symfony\\Component\\Console\\Application->find()
+#2 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/symfony/console/Application.php(195): Symfony\\Component\\Console\\Application->doRun()
+#3 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run()
+#4 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle()
+#5 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/artisan(13): Illuminate\\Foundation\\Application->handleCommand()
+#6 {main}
+"} 
+[2025-11-14 02:36:44] local.ERROR: There are no commands defined in the "log" namespace. {"exception":"[object] (Symfony\\Component\\Console\\Exception\\NamespaceNotFoundException(code: 0): There are no commands defined in the \"log\" namespace. at /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/symfony/console/Application.php:674)
+[stacktrace]
+#0 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/symfony/console/Application.php(723): Symfony\\Component\\Console\\Application->findNamespace()
+#1 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/symfony/console/Application.php(298): Symfony\\Component\\Console\\Application->find()
+#2 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/symfony/console/Application.php(195): Symfony\\Component\\Console\\Application->doRun()
+#3 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run()
+#4 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle()
+#5 /home/jjmartinezf/invoices-microservices/backend/invoices-laravel/artisan(13): Illuminate\\Foundation\\Application->handleCommand()
+#6 {main}
+"} 
